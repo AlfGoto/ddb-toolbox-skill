@@ -1,0 +1,27 @@
+{
+  "name": "dynamodb-toolbox-skill",
+  "version": "1.0.0",
+  "description": "Agent skill for DynamoDB-Toolbox v2 - type-safe query builder for DynamoDB",
+  "keywords": [
+    "agent-skills",
+    "cursor",
+    "claude-code",
+    "dynamodb",
+    "dynamodb-toolbox",
+    "aws"
+  ],
+  "author": "AlfGoto",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlfGoto/ddb-toolbox-skill.git"
+  },
+  "scripts": {
+    "validate": "node scripts/validate.js",
+    "build": "node scripts/build.js",
+    "prepublishOnly": "npm run validate"
+  },
+  "files": [
+    "skills/**/*"
+  ]
+}
