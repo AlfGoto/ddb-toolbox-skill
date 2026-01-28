@@ -16,11 +16,6 @@
     "type": "git",
     "url": "https://github.com/AlfGoto/ddb-toolbox-skill.git"
   },
-  "scripts": {
-    "validate": "node scripts/validate.js",
-    "build": "node scripts/build.js",
-    "prepublishOnly": "npm run validate"
-  },
   "files": [
     "skills/**/*"
   ]
