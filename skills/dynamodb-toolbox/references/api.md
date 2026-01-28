@@ -17,7 +17,7 @@
 ## Table Configuration
 
 ```typescript
-import { Table } from 'dynamodb-toolbox/table'
+import { Table } from 'dynamodb-toolbox'
 
 new Table({
   // Required
@@ -51,7 +51,7 @@ table.name           // Get table name
 ## Entity Configuration
 
 ```typescript
-import { Entity } from 'dynamodb-toolbox/entity'
+import { Entity } from 'dynamodb-toolbox'
 
 new Entity({
   // Required
@@ -100,7 +100,7 @@ import {
   item,
   string, number, boolean, binary, any,
   list, set, map, record, anyOf
-} from 'dynamodb-toolbox/schema'
+} from 'dynamodb-toolbox'
 ```
 
 ### Primitive Types
@@ -255,7 +255,7 @@ record(keySchema, valueSchema)
 ### GetItemCommand
 
 ```typescript
-import { GetItemCommand } from 'dynamodb-toolbox/entity/actions/get'
+import { GetItemCommand } from 'dynamodb-toolbox'
 
 await entity.build(GetItemCommand)
   .key({ pkAttr: 'value', skAttr: 'value' })
@@ -274,7 +274,7 @@ await entity.build(GetItemCommand)
 ### PutItemCommand
 
 ```typescript
-import { PutItemCommand } from 'dynamodb-toolbox/entity/actions/put'
+import { PutItemCommand } from 'dynamodb-toolbox'
 
 await entity.build(PutItemCommand)
   .item({ /* full item data */ })
@@ -295,8 +295,7 @@ await entity.build(PutItemCommand)
 ### UpdateItemCommand
 
 ```typescript
-import { UpdateItemCommand } from 'dynamodb-toolbox/entity/actions/update'
-import { $add, $remove, $set, $append, $prepend, $get } from 'dynamodb-toolbox/entity/actions/update'
+import { UpdateItemCommand, $add, $remove, $set, $append, $prepend, $get } from 'dynamodb-toolbox'
 
 await entity.build(UpdateItemCommand)
   .item({
@@ -326,13 +325,13 @@ await entity.build(UpdateItemCommand)
 Like UpdateItemCommand but deep attributes (maps, lists) are completely replaced instead of merged.
 
 ```typescript
-import { UpdateAttributesCommand } from 'dynamodb-toolbox/entity/actions/updateAttributes'
+import { UpdateAttributesCommand } from 'dynamodb-toolbox'
 ```
 
 ### DeleteItemCommand
 
 ```typescript
-import { DeleteItemCommand } from 'dynamodb-toolbox/entity/actions/delete'
+import { DeleteItemCommand } from 'dynamodb-toolbox'
 
 await entity.build(DeleteItemCommand)
   .key({ pkAttr: 'value', skAttr: 'value' })
@@ -350,7 +349,7 @@ await entity.build(DeleteItemCommand)
 ### BatchGetRequest
 
 ```typescript
-import { BatchGetRequest } from 'dynamodb-toolbox/entity/actions/batchGet'
+import { BatchGetRequest } from 'dynamodb-toolbox'
 
 const request = entity.build(BatchGetRequest)
   .key({ pkAttr: 'value' })
@@ -360,7 +359,7 @@ const request = entity.build(BatchGetRequest)
 ### BatchPutRequest / BatchDeleteRequest
 
 ```typescript
-import { BatchPutRequest, BatchDeleteRequest } from 'dynamodb-toolbox/entity/actions/batchWrite'
+import { BatchPutRequest, BatchDeleteRequest } from 'dynamodb-toolbox'
 
 const putRequest = entity.build(BatchPutRequest).item({ ... })
 const deleteRequest = entity.build(BatchDeleteRequest).key({ ... })
@@ -369,7 +368,7 @@ const deleteRequest = entity.build(BatchDeleteRequest).key({ ... })
 ### GetTransaction
 
 ```typescript
-import { GetTransaction } from 'dynamodb-toolbox/entity/actions/transactGet'
+import { GetTransaction } from 'dynamodb-toolbox'
 
 const transaction = entity.build(GetTransaction)
   .key({ ... })
@@ -379,9 +378,7 @@ const transaction = entity.build(GetTransaction)
 ### PutTransaction / UpdateTransaction / DeleteTransaction
 
 ```typescript
-import { PutTransaction } from 'dynamodb-toolbox/entity/actions/transactPut'
-import { UpdateTransaction } from 'dynamodb-toolbox/entity/actions/transactUpdate'
-import { DeleteTransaction } from 'dynamodb-toolbox/entity/actions/transactDelete'
+import { PutTransaction, UpdateTransaction, DeleteTransaction } from 'dynamodb-toolbox'
 
 const putTx = entity.build(PutTransaction)
   .item({ ... })
@@ -399,7 +396,7 @@ const deleteTx = entity.build(DeleteTransaction)
 ### ConditionCheck
 
 ```typescript
-import { ConditionCheck } from 'dynamodb-toolbox/entity/actions/conditionCheck'
+import { ConditionCheck } from 'dynamodb-toolbox'
 
 const check = entity.build(ConditionCheck)
   .key({ ... })
@@ -409,9 +406,9 @@ const check = entity.build(ConditionCheck)
 ### AccessPattern
 
 ```typescript
-import { AccessPattern } from 'dynamodb-toolbox/entity/actions/accessPattern'
+import { EntityAccessPattern } from 'dynamodb-toolbox'
 
-const pattern = entity.build(AccessPattern)
+const pattern = entity.build(EntityAccessPattern)
   .schema(item({ inputAttr: string() }))
   .pattern(({ inputAttr }) => ({
     partition: `PREFIX#${inputAttr}`,
@@ -430,7 +427,7 @@ const { Items } = await pattern.query({ inputAttr: 'value' }).send()
 ### QueryCommand
 
 ```typescript
-import { QueryCommand } from 'dynamodb-toolbox/table/actions/query'
+import { QueryCommand } from 'dynamodb-toolbox'
 
 await table.build(QueryCommand)
   .query({
@@ -477,7 +474,7 @@ await table.build(QueryCommand)
 ### ScanCommand
 
 ```typescript
-import { ScanCommand } from 'dynamodb-toolbox/table/actions/scan'
+import { ScanCommand } from 'dynamodb-toolbox'
 
 await table.build(ScanCommand)
   .entities(Entity1, Entity2)  // Optional
@@ -500,8 +497,7 @@ await table.build(ScanCommand)
 ### BatchGetCommand
 
 ```typescript
-import { BatchGetCommand } from 'dynamodb-toolbox/table/actions/batchGet'
-import { execute } from 'dynamodb-toolbox/table/actions/batchGet'
+import { BatchGetCommand, executeBatchGet } from 'dynamodb-toolbox'
 
 const command = table.build(BatchGetCommand)
   .requests(request1, request2, ...)
@@ -510,7 +506,7 @@ const command = table.build(BatchGetCommand)
     attributes?: string[]
   })
 
-const { Responses } = await execute(command, {
+const { Responses } = await executeBatchGet(command, {
   capacity?: 'INDEXES' | 'TOTAL' | 'NONE',
   documentClient?: DynamoDBDocumentClient,
   maxAttempts?: number
@@ -520,13 +516,12 @@ const { Responses } = await execute(command, {
 ### BatchWriteCommand
 
 ```typescript
-import { BatchWriteCommand } from 'dynamodb-toolbox/table/actions/batchWrite'
-import { execute } from 'dynamodb-toolbox/table/actions/batchWrite'
+import { BatchWriteCommand, executeBatchWrite } from 'dynamodb-toolbox'
 
 const command = table.build(BatchWriteCommand)
   .requests(putRequest1, deleteRequest1, ...)
 
-await execute(command, {
+await executeBatchWrite(command, {
   capacity?: 'INDEXES' | 'TOTAL' | 'NONE',
   metrics?: 'NONE' | 'SIZE',
   documentClient?: DynamoDBDocumentClient,
@@ -581,10 +576,7 @@ Use in `.options({ condition: ... })` for conditional operations:
 Import update operations:
 
 ```typescript
-import {
-  $set, $remove, $add, $delete,
-  $append, $prepend, $get
-} from 'dynamodb-toolbox/entity/actions/update'
+import { $set, $remove, $add, $delete, $append, $prepend, $get } from 'dynamodb-toolbox'
 ```
 
 ### Operations
@@ -652,20 +644,16 @@ await entity.build(UpdateItemCommand)
 ### Input Types
 
 ```typescript
-import type {
-  PutItemInput,
-  UpdateItemInput,
-  KeyInput
-} from 'dynamodb-toolbox/entity/actions/put'
+import type { PutItemInput, UpdateItemInput, KeyInputItem } from 'dynamodb-toolbox'
 
 type MyEntityInput = PutItemInput<typeof MyEntity>
-type MyEntityKey = KeyInput<typeof MyEntity>
+type MyEntityKey = KeyInputItem<typeof MyEntity>
 ```
 
 ### Output Types
 
 ```typescript
-import type { FormattedItem } from 'dynamodb-toolbox/entity'
+import type { FormattedItem } from 'dynamodb-toolbox'
 
 type MyEntityItem = FormattedItem<typeof MyEntity>
 ```
@@ -673,9 +661,9 @@ type MyEntityItem = FormattedItem<typeof MyEntity>
 ### Schema Inference
 
 ```typescript
-import type { InferSchema } from 'dynamodb-toolbox/schema'
+import type { FormattedValue } from 'dynamodb-toolbox'
 
 const mySchema = item({ name: string(), age: number() })
-type MySchemaType = InferSchema<typeof mySchema>
+type MySchemaType = FormattedValue<typeof mySchema>
 // { name: string, age: number }
 ```

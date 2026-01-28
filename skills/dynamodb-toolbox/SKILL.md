@@ -21,18 +21,20 @@ TypeScript 5+ with `"strict": true` in tsconfig.json is recommended.
 
 ### Import Pattern
 
-Use subpath imports for tree-shaking:
+Import directly from the main package:
 
 ```typescript
-import { Table } from 'dynamodb-toolbox/table'
-import { Entity } from 'dynamodb-toolbox/entity'
-import { item, string, number, boolean, list, map, set, record, anyOf, any } from 'dynamodb-toolbox/schema'
-import { GetItemCommand } from 'dynamodb-toolbox/entity/actions/get'
-import { PutItemCommand } from 'dynamodb-toolbox/entity/actions/put'
-import { UpdateItemCommand } from 'dynamodb-toolbox/entity/actions/update'
-import { DeleteItemCommand } from 'dynamodb-toolbox/entity/actions/delete'
-import { QueryCommand } from 'dynamodb-toolbox/table/actions/query'
-import { ScanCommand } from 'dynamodb-toolbox/table/actions/scan'
+import {
+  Table,
+  Entity,
+  item, string, number, boolean, binary, list, map, set, record, anyOf, any,
+  GetItemCommand,
+  PutItemCommand,
+  UpdateItemCommand,
+  DeleteItemCommand,
+  QueryCommand,
+  ScanCommand
+} from 'dynamodb-toolbox'
 ```
 
 ### Table Definition
@@ -40,7 +42,7 @@ import { ScanCommand } from 'dynamodb-toolbox/table/actions/scan'
 ```typescript
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
-import { Table } from 'dynamodb-toolbox/table'
+import { Table } from 'dynamodb-toolbox'
 
 const client = new DynamoDBClient({})
 const documentClient = DynamoDBDocumentClient.from(client)
@@ -68,8 +70,7 @@ const MyTable = new Table({
 ### Entity Definition
 
 ```typescript
-import { Entity } from 'dynamodb-toolbox/entity'
-import { item, string, number, boolean, list, map } from 'dynamodb-toolbox/schema'
+import { Entity, item, string, number, boolean, list, map } from 'dynamodb-toolbox'
 
 const UserEntity = new Entity({
   name: 'User',
@@ -151,7 +152,7 @@ string()
 ### GetItemCommand
 
 ```typescript
-import { GetItemCommand } from 'dynamodb-toolbox/entity/actions/get'
+import { GetItemCommand } from 'dynamodb-toolbox'
 
 const { Item } = await UserEntity.build(GetItemCommand)
   .key({ userId: '123' })
@@ -165,7 +166,7 @@ const { Item } = await UserEntity.build(GetItemCommand)
 ### PutItemCommand
 
 ```typescript
-import { PutItemCommand } from 'dynamodb-toolbox/entity/actions/put'
+import { PutItemCommand } from 'dynamodb-toolbox'
 
 const { Attributes } = await UserEntity.build(PutItemCommand)
   .item({
@@ -183,8 +184,7 @@ const { Attributes } = await UserEntity.build(PutItemCommand)
 ### UpdateItemCommand
 
 ```typescript
-import { UpdateItemCommand } from 'dynamodb-toolbox/entity/actions/update'
-import { $add, $remove, $append, $set } from 'dynamodb-toolbox/entity/actions/update'
+import { UpdateItemCommand, $add, $remove, $append, $set } from 'dynamodb-toolbox'
 
 // Basic update
 await UserEntity.build(UpdateItemCommand)
@@ -219,7 +219,7 @@ await UserEntity.build(UpdateItemCommand)
 ### DeleteItemCommand
 
 ```typescript
-import { DeleteItemCommand } from 'dynamodb-toolbox/entity/actions/delete'
+import { DeleteItemCommand } from 'dynamodb-toolbox'
 
 const { Attributes } = await UserEntity.build(DeleteItemCommand)
   .key({ userId: '123' })
@@ -233,7 +233,7 @@ const { Attributes } = await UserEntity.build(DeleteItemCommand)
 ### QueryCommand (Table-level)
 
 ```typescript
-import { QueryCommand } from 'dynamodb-toolbox/table/actions/query'
+import { QueryCommand } from 'dynamodb-toolbox'
 
 const { Items, LastEvaluatedKey } = await MyTable.build(QueryCommand)
   .query({
@@ -265,7 +265,7 @@ do {
 ### ScanCommand (Table-level)
 
 ```typescript
-import { ScanCommand } from 'dynamodb-toolbox/table/actions/scan'
+import { ScanCommand } from 'dynamodb-toolbox'
 
 const { Items } = await MyTable.build(ScanCommand)
   .entities(UserEntity)
@@ -288,9 +288,7 @@ await MyTable.build(ScanCommand)
 ### BatchGet
 
 ```typescript
-import { BatchGetRequest } from 'dynamodb-toolbox/entity/actions/batchGet'
-import { BatchGetCommand } from 'dynamodb-toolbox/table/actions/batchGet'
-import { execute } from 'dynamodb-toolbox/entity/actions/batchGet'
+import { BatchGetRequest, BatchGetCommand, executeBatchGet } from 'dynamodb-toolbox'
 
 const requests = [
   UserEntity.build(BatchGetRequest).key({ userId: '1' }),
@@ -298,15 +296,13 @@ const requests = [
 ]
 
 const command = MyTable.build(BatchGetCommand).requests(...requests)
-const { Responses } = await execute(command)
+const { Responses } = await executeBatchGet(command)
 ```
 
 ### BatchWrite
 
 ```typescript
-import { BatchPutRequest, BatchDeleteRequest } from 'dynamodb-toolbox/entity/actions/batchWrite'
-import { BatchWriteCommand } from 'dynamodb-toolbox/table/actions/batchWrite'
-import { execute } from 'dynamodb-toolbox/entity/actions/batchWrite'
+import { BatchPutRequest, BatchDeleteRequest, BatchWriteCommand, executeBatchWrite } from 'dynamodb-toolbox'
 
 const requests = [
   UserEntity.build(BatchPutRequest).item({ userId: '1', email: 'a@b.com' }),
@@ -314,7 +310,7 @@ const requests = [
 ]
 
 const command = MyTable.build(BatchWriteCommand).requests(...requests)
-await execute(command)
+await executeBatchWrite(command)
 ```
 
 ## Transactions
@@ -322,27 +318,22 @@ await execute(command)
 ### TransactGet
 
 ```typescript
-import { GetTransaction } from 'dynamodb-toolbox/entity/actions/transactGet'
-import { execute } from 'dynamodb-toolbox/entity/actions/transactGet'
+import { GetTransaction, executeTransactGet } from 'dynamodb-toolbox'
 
 const transactions = [
   UserEntity.build(GetTransaction).key({ userId: '1' }),
   OrderEntity.build(GetTransaction).key({ orderId: '100' })
 ]
 
-const { Responses } = await execute(...transactions)
+const { Responses } = await executeTransactGet(...transactions)
 ```
 
 ### TransactWrite
 
 ```typescript
-import { PutTransaction } from 'dynamodb-toolbox/entity/actions/transactPut'
-import { UpdateTransaction } from 'dynamodb-toolbox/entity/actions/transactUpdate'
-import { DeleteTransaction } from 'dynamodb-toolbox/entity/actions/transactDelete'
-import { ConditionCheck } from 'dynamodb-toolbox/entity/actions/conditionCheck'
-import { execute } from 'dynamodb-toolbox/entity/actions/transactWrite'
+import { PutTransaction, UpdateTransaction, DeleteTransaction, ConditionCheck, executeTransactWrite } from 'dynamodb-toolbox'
 
-await execute(
+await executeTransactWrite(
   UserEntity.build(PutTransaction).item({ userId: '1', email: 'new@email.com' }),
   OrderEntity.build(UpdateTransaction).item({ orderId: '100', status: 'shipped' }),
   UserEntity.build(ConditionCheck)
@@ -408,10 +399,9 @@ const OrderEntity = new Entity({
 ### Access Patterns
 
 ```typescript
-import { AccessPattern } from 'dynamodb-toolbox/entity/actions/accessPattern'
-import { item, string } from 'dynamodb-toolbox/schema'
+import { EntityAccessPattern, item, string } from 'dynamodb-toolbox'
 
-const getUserOrders = UserEntity.build(AccessPattern)
+const getUserOrders = UserEntity.build(EntityAccessPattern)
   .schema(item({ userId: string() }))
   .pattern(({ userId }) => ({
     partition: `USER#${userId}`,
